@@ -46,6 +46,44 @@ def test1():
         pygame.time.delay(100)
     pygame.quit()
 
+def test_2():
+    sprite_sheet = pygame.image.load("./images/sprite_sheet.gif")
+    print(sprite_sheet.get_size())
+    walk_left_anim = AnimationSequence(sprite_sheet, 8, 453, 24, 28, 8)
+    walk_right_anim = AnimationSequence(sprite_sheet, 198, 453, 23, 28, 8)
+    walk_up_anim = AnimationSequence(sprite_sheet, 9, 486, 23, 28, 8)
+    walk_down_anim = AnimationSequence(sprite_sheet, 200, 486, 22, 28, 8)
+    pygame.init()
+    screen = pygame.display.set_mode((640,480))
+    running = True
+    frame_num = 0
+    curr_anim = walk_left_anim
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                if event.key == pygame.K_LEFT:
+                    print ("walk left")
+                    curr_anim = walk_left_anim
+                if event.key == pygame.K_RIGHT:
+                    print ("walk right")
+                    curr_anim = walk_right_anim
+                if event.key == pygame.K_UP:
+                    print ("walk up")
+                    curr_anim = walk_up_anim
+                if event.key == pygame.K_DOWN:
+                    print ("walk down")
+                    curr_anim = walk_down_anim
+        screen.fill((0,0,0))
+        curr_anim.draw(screen, 320, 240, frame_num)
+        frame_num += 1
+        if frame_num >=8:
+            frame_num = 0
+        pygame.display.flip()
+        pygame.time.delay(100)
+    pygame.quit()
+
 if __name__ == "__main__":
-    test1()
+    test_2()
 
