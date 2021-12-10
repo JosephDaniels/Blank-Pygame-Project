@@ -48,7 +48,6 @@ def test1():
 
 def test_2():
     sprite_sheet = pygame.image.load("./images/sprite_sheet.gif")
-    print(sprite_sheet.get_size())
     walk_left_anim = AnimationSequence(sprite_sheet, 8, 453, 24, 28, 8)
     walk_right_anim = AnimationSequence(sprite_sheet, 198, 453, 23, 28, 8)
     walk_up_anim = AnimationSequence(sprite_sheet, 9, 486, 23, 28, 8)

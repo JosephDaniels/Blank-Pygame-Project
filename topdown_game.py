@@ -1,6 +1,7 @@
 import pygame
 import time
 import sys
+from animation import AnimationSequence
 
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 768
@@ -97,22 +98,46 @@ class Player(GameObject):
         super().__init__(x, y, image_file)
         self.vx = 0
         self.vy = 0
+        self.load_animations()
+        self.current_frame = 0
+        self.current_animation = self.walk_left_anim
+
+    def load_animations(self):
+        self.sprite_sheet = pygame.image.load("./images/sprite_sheet.gif")
+        self.walk_left_anim = AnimationSequence(sprite_sheet, 8, 453, 24, 28, 8)
+        self.walk_right_anim = AnimationSequence(sprite_sheet, 198, 453, 23, 28, 8)
+        self.walk_up_anim = AnimationSequence(sprite_sheet, 9, 486, 23, 28, 8)
+        self.walk_down_anim = AnimationSequence(sprite_sheet, 200, 486, 22, 28, 8)
+
+    def draw(self, surface):
+        self.current_animation.draw(surface, self.x-self.current_animation.w/2,
+                                    SCREEN_HEIGHT-self.y-self.current_animation.h/2,
+                                    self.current_frame)
 
     def update(self):
         self.x += self.vx
+        print (self.x)
         self.y += self.vy
+        print (self.y)
+        self.current_frame += 1
+        if self.current_frame > self.current_animation.num_frames:
+            self.current_frame = 0
         print ("player tick")
 
     def move_right(self):
+        self.current_animation = self.walk_right_anim
         self.vx = 4
 
     def move_left(self):
+        self.current_animation = self.walk_left_anim
         self.vx = -4
 
     def move_up(self):
+        self.current_animation = self.walk_up_anim
         self.vy = 4
 
     def move_down(self):
+        self.current_animation = self.walk_down_anim
         self.vy = -4
 
     def stop_move_right(self):
@@ -126,7 +151,6 @@ class Player(GameObject):
 
     def stop_move_down(self):
         self.vy = 0
-
 
 def test_game():
     p = Player(512,512,"images/player.png")
