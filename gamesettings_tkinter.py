@@ -5,6 +5,9 @@ class GameSetupApp(tk.Toplevel):
     def __init__(self, master):
         super().__init__(master)
         self.master = master
+        self.settings = {
+        }
+        self.start_game = False
         self.create_widgets()
 
     def create_widgets(self):
@@ -53,7 +56,8 @@ class GameSetupApp(tk.Toplevel):
 
     def do_start_game(self):
         print ("starting the game!")
-        pass
+        self.start_game = True
+        self.quit()
 
 def test_1():
     root = tk.Tk()

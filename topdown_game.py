@@ -8,7 +8,8 @@ SCREEN_HEIGHT = 1024
 class Game_Manager(object):
     """ Handles all the game objects,
         and manages the game stuff!!!"""
-    def __init__(self):
+    def __init__(self, settings):
+        self.settings = settings
         self.player = None
         self.actors = []
         self.objects = []
