@@ -17,6 +17,7 @@ class Game_Manager(object):
         self.running = True
         self.background = GameObject(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,"images/test_background_DO_NOT_SHIP.jpg")
         self.background.resize(1024, 768)
+        self.anim_counter = 2
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.bounds = self.screen.get_rect()
 
@@ -98,16 +99,36 @@ class Player(GameObject):
         super().__init__(x, y, image_file)
         self.vx = 0
         self.vy = 0
+        self.anim_counter = 5
         self.load_animations()
         self.current_frame = 0
         self.current_animation = self.walk_left_anim
 
     def load_animations(self):
+        self.scale_factor = 4
         self.sprite_sheet = pygame.image.load("./images/sprite_sheet.gif")
-        self.walk_left_anim = AnimationSequence(sprite_sheet, 8, 453, 24, 28, 8)
-        self.walk_right_anim = AnimationSequence(sprite_sheet, 198, 453, 23, 28, 8)
-        self.walk_up_anim = AnimationSequence(sprite_sheet, 9, 486, 23, 28, 8)
-        self.walk_down_anim = AnimationSequence(sprite_sheet, 200, 486, 22, 28, 8)
+        self.sprite_sheet = pygame.transform.scale(self.sprite_sheet, (400*self.scale_factor,
+                                                                       780*self.scale_factor))
+        self.walk_left_anim = AnimationSequence(self.sprite_sheet,
+                                                8*self.scale_factor,
+                                                453*self.scale_factor,
+                                                24*self.scale_factor,
+                                                28*self.scale_factor,8)
+        self.walk_right_anim = AnimationSequence(self.sprite_sheet,
+                                                 198*self.scale_factor,
+                                                 453*self.scale_factor,
+                                                 23*self.scale_factor,
+                                                 28*self.scale_factor, 8)
+        self.walk_up_anim = AnimationSequence(self.sprite_sheet,
+                                              9*self.scale_factor,
+                                              486*self.scale_factor,
+                                              23*self.scale_factor,
+                                              28*self.scale_factor, 8)
+        self.walk_down_anim = AnimationSequence(self.sprite_sheet,
+                                                200*self.scale_factor,
+                                                486*self.scale_factor,
+                                                22*self.scale_factor,
+                                                28*self.scale_factor, 8)
 
     def draw(self, surface):
         self.current_animation.draw(surface, self.x-self.current_animation.w/2,
@@ -115,14 +136,20 @@ class Player(GameObject):
                                     self.current_frame)
 
     def update(self):
-        self.x += self.vx
-        print (self.x)
-        self.y += self.vy
-        print (self.y)
-        self.current_frame += 1
-        if self.current_frame > self.current_animation.num_frames:
+        if abs(self.vx) == 4 and abs(self.vy) == 4:
+            self.x += self.vx*0.7
+            self.y += self.vy*0.7
+            print ("Slowed on a diagonal")
+        else:
+            self.x += self.vx
+            self.y += self.vy
+        if self.anim_counter == 0:
+            self.current_frame += 1
+            self.anim_counter = 5
+        else:
+            self.anim_counter -= 1
+        if self.current_frame >= self.current_animation.num_frames:
             self.current_frame = 0
-        print ("player tick")
 
     def move_right(self):
         self.current_animation = self.walk_right_anim
@@ -154,7 +181,8 @@ class Player(GameObject):
 
 def test_game():
     p = Player(512,512,"images/player.png")
-    manager = Game_Manager()
+    settings = {}
+    manager = Game_Manager(settings)
     manager.add_player(p)
     manager.start_loop()
 
