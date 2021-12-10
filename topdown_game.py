@@ -139,7 +139,6 @@ class Player(GameObject):
         if abs(self.vx) == 4 and abs(self.vy) == 4:
             self.x += self.vx*0.7
             self.y += self.vy*0.7
-            print ("Slowed on a diagonal")
         else:
             self.x += self.vx
             self.y += self.vy
@@ -149,6 +148,8 @@ class Player(GameObject):
         else:
             self.anim_counter -= 1
         if self.current_frame >= self.current_animation.num_frames:
+            self.current_frame = 0
+        if self.vx == 0 and self.vy == 0:
             self.current_frame = 0
 
     def move_right(self):
