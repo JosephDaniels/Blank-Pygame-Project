@@ -11,7 +11,8 @@ class Game_Manager(object):
         and manages the game stuff!!!"""
     def __init__(self, settings):
         self.settings = settings
-        self.player = None
+        self.load_settings()
+        self.player = Player(512,512,"images/player.png")
         self.actors = []
         self.objects = []
         self.running = True
@@ -24,36 +25,71 @@ class Game_Manager(object):
         pygame.init()
         pygame.display.set_caption("Top Down Game")
 
-    def add_player(self, player):
-        self.player = player
+    def load_settings(self):
+        if self.settings['Default Controls'] == True:
+            self.settings['Controller Preference'] = 'Keyboard'
+        else:
+            print ("We're still testing joysticks lel")
+
+    def handle_keyboard_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.running = False
+                    pygame.quit()
+                    sys.exit()
+                    break
+                elif event.key in (pygame.K_RIGHT, pygame.K_d):
+                    self.player.move_right()
+                elif event.key in (pygame.K_LEFT, pygame.K_a):
+                    self.player.move_left()
+                elif event.key in (pygame.K_UP, pygame.K_w):
+                    self.player.move_up()
+                elif event.key in (pygame.K_DOWN, pygame.K_s):
+                    self.player.move_down()
+            if event.type == pygame.KEYUP:
+                if event.key in (pygame.K_RIGHT, pygame.K_d):
+                    self.player.stop_move_right()
+                elif event.key in (pygame.K_LEFT, pygame.K_a):
+                    self.player.stop_move_left()
+                elif event.key in (pygame.K_UP, pygame.K_w):
+                    self.player.stop_move_up()
+                elif event.key in (pygame.K_DOWN, pygame.K_s):
+                    self.player.stop_move_down()
+
+    def handle_keyboard_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.running = False
+                    pygame.quit()
+                    sys.exit()
+                    break
+                elif event.key in (pygame.K_RIGHT, pygame.K_d):
+                    self.player.move_right()
+                elif event.key in (pygame.K_LEFT, pygame.K_a):
+                    self.player.move_left()
+                elif event.key in (pygame.K_UP, pygame.K_w):
+                    self.player.move_up()
+                elif event.key in (pygame.K_DOWN, pygame.K_s):
+                    self.player.move_down()
+            if event.type == pygame.KEYUP:
+                if event.key in (pygame.K_RIGHT, pygame.K_d):
+                    self.player.stop_move_right()
+                elif event.key in (pygame.K_LEFT, pygame.K_a):
+                    self.player.stop_move_left()
+                elif event.key in (pygame.K_UP, pygame.K_w):
+                    self.player.stop_move_up()
+                elif event.key in (pygame.K_DOWN, pygame.K_s):
+                    self.player.stop_move_down()
 
     def start_loop(self):
         while self.running == True:
             ## HANDLE EVENTS
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        self.running = False
-                        pygame.quit()
-                        sys.exit()
-                        break
-                    elif event.key in (pygame.K_RIGHT, pygame.K_d):
-                        self.player.move_right()
-                    elif event.key in (pygame.K_LEFT, pygame.K_a):
-                        self.player.move_left()
-                    elif event.key in (pygame.K_UP, pygame.K_w):
-                        self.player.move_up()
-                    elif event.key in (pygame.K_DOWN, pygame.K_s):
-                        self.player.move_down()
-                if event.type == pygame.KEYUP:
-                    if event.key in (pygame.K_RIGHT, pygame.K_d):
-                        self.player.stop_move_right()
-                    elif event.key in (pygame.K_LEFT, pygame.K_a):
-                        self.player.stop_move_left()
-                    elif event.key in (pygame.K_UP, pygame.K_w):
-                        self.player.stop_move_up()
-                    elif event.key in (pygame.K_DOWN, pygame.K_s):
-                        self.player.stop_move_down()
+            if self.settings["Controller Preference"] == "Keyboard":
+                self.handle_keyboard_events()
+            elif self.settings["Controller Preference"] == "Joystick":
+                self.handle_joystick_events()
 
             ## UPDATE PHYSICS AND POSITION
             self.player.update()

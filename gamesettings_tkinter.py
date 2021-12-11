@@ -118,7 +118,7 @@ class GameSetupApp(tk.Toplevel):
         pass
 
     def do_start_game(self):
-        print ("starting the game!")
+        print (self.settings)
         self.start_game = True
         self.quit()
 
