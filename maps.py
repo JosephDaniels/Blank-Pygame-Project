@@ -1,6 +1,5 @@
 import pygame
-from csv import
-
+#from csv import
 
 class MapLevel(object):
     def __init__(self, filename):
