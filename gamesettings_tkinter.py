@@ -1,6 +1,52 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 
+class GameSettingsWindow(tk.Toplevel):
+    def __init__(self, master):
+        super().__init__(master)
+        self.master = master
+        self.create_widgets()
+
+    def create_widgets(self):
+        row = 0
+
+        message = """
+        Choose Game Options.
+        """
+
+        msg = tk.Label(self, text=message)
+        msg.grid(column=0, row=row)
+        row = row + 1
+
+        single_player_button = tk.Button(self,
+                                    text="Single Player",
+                                    command=self.apply_single_player_settings)
+        single_player_button.grid(column=0, row=row)
+        row = row + 1
+
+        two_player_button = tk.Button(self,
+                                    text="Two Player",
+                                    command=self.apply_two_player_settings)
+        two_player_button.grid(column=0, row=row)
+        row = row + 1
+
+        return_to_menu_button = tk.Button(self,
+                                          text="Save & Return",
+                                          command=self.save_and_return)
+        return_to_menu_button.grid(column=0, row=row)
+        row = row + 1
+
+    def save_and_return(self):
+        self.destroy()
+
+    def apply_single_player_settings(self):
+        self.master.settings["Number of Players"] = 1
+        print ("Single player mode")
+
+    def apply_two_player_settings(self):
+        self.master.settings["Number of Players"] = 2
+        print("Two player mode")
+
 class ControllerSettingsWindow(tk.Toplevel):
     def __init__(self, master):
         super().__init__(master)
@@ -59,7 +105,8 @@ class GameSetupApp(tk.Toplevel):
         super().__init__(master)
         self.master = master
         self.settings = {
-            "Default Controls"   :   True,
+            "Number of Players"  :   1,
+            "Default Controls"   :   True
         }
         self.start_game = False
         self.create_widgets()
@@ -73,6 +120,12 @@ class GameSetupApp(tk.Toplevel):
 
         message = tk.Label(self, text=welcome_message)
         message.grid(column=0, row=row)
+        row = row+1
+
+        game_settings_button = tk.Button(self,
+                                        text="Game Settings",
+                                        command=self.open_game_settings)
+        game_settings_button.grid(column=0, row=row)
         row = row+1
 
         controller_settings_button = tk.Button(self,
@@ -107,6 +160,9 @@ class GameSetupApp(tk.Toplevel):
 
     def do_quit_game(self):
         self.quit()
+
+    def open_game_settings(self):
+        self.game_settings_window = GameSettingsWindow(self)
 
     def open_controller_settings(self):
         self.controller_settings_window = ControllerSettingsWindow(self)

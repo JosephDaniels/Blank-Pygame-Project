@@ -12,8 +12,16 @@ class Game_Manager(object):
     def __init__(self, settings):
         self.settings = settings
         self.load_settings()
-        self.player = Player(512,512,"images/player.png")
+
+        ## Add player one to the game.
+        self.players = []
+        for player in range(self.settings["Number of Players"]):
+            print (player+1)
+        self.player_one = Player(512,512,"images/player.png")
+        self.players.append(self.player_one)
         self.actors = []
+        self.actors.append(self.player_one)
+
         self.objects = []
         self.running = True
         self.background = GameObject(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,"images/test_background_DO_NOT_SHIP.jpg")
@@ -57,7 +65,7 @@ class Game_Manager(object):
                 elif event.key in (pygame.K_DOWN, pygame.K_s):
                     self.player.stop_move_down()
 
-    def handle_keyboard_events(self):
+    def handle_keyboard_events(self, player):
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
@@ -66,40 +74,44 @@ class Game_Manager(object):
                     sys.exit()
                     break
                 elif event.key in (pygame.K_RIGHT, pygame.K_d):
-                    self.player.move_right()
+                    player.move_right()
                 elif event.key in (pygame.K_LEFT, pygame.K_a):
-                    self.player.move_left()
+                    player.move_left()
                 elif event.key in (pygame.K_UP, pygame.K_w):
-                    self.player.move_up()
+                    player.move_up()
                 elif event.key in (pygame.K_DOWN, pygame.K_s):
-                    self.player.move_down()
+                    player.move_down()
             if event.type == pygame.KEYUP:
                 if event.key in (pygame.K_RIGHT, pygame.K_d):
-                    self.player.stop_move_right()
+                    player.stop_move_right()
                 elif event.key in (pygame.K_LEFT, pygame.K_a):
-                    self.player.stop_move_left()
+                    player.stop_move_left()
                 elif event.key in (pygame.K_UP, pygame.K_w):
-                    self.player.stop_move_up()
+                    player.stop_move_up()
                 elif event.key in (pygame.K_DOWN, pygame.K_s):
-                    self.player.stop_move_down()
+                    player.stop_move_down()
 
     def start_loop(self):
         while self.running == True:
             ## HANDLE EVENTS
             if self.settings["Controller Preference"] == "Keyboard":
-                self.handle_keyboard_events()
+                self.handle_keyboard_events(self.player_one)
             elif self.settings["Controller Preference"] == "Joystick":
                 self.handle_joystick_events()
 
             ## UPDATE PHYSICS AND POSITION
-            self.player.update()
+            for player in self.players:
+                player.update()
+            for actor in self.actors:
+                actor.update()
 
             ## DISPLAY ALL OBJECTS
 
             ## BACKGROUND
             self.background.draw(self.screen)
             ## PLAYER
-            self.player.draw(self.screen)
+            for player in self.players:
+                player.draw(self.screen)
 
             pygame.display.flip()
 
