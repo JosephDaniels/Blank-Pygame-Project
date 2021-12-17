@@ -19,6 +19,7 @@ def test1():
     # load the tile map
     tiled_map = pytmx.util_pygame.load_pygame("./maps/test_level.tmx")
     ground_layer = tiled_map.layernames["ground"]
+    wall_layer = tiled_map.layernames["walls"]
     tile_images = tiled_map.images
 
     running = True
@@ -32,10 +33,16 @@ def test1():
 
         # render the ground layer by iterating through all the tiles
         for x,y, gid in ground_layer:
+            tile_props = tiled_map.get_tile_properties(x,y, ground_layer)
             img = tile_images[gid]
             if img:
                 screen.blit(img, (x*img.get_width(), y*img.get_height() ))
 
+        # render the wall layer by iterating through all the tiles
+        for x,y, gid in wall_layer:
+            img = tile_images[gid]
+            if img:
+                screen.blit(img, (x*img.get_width(), y*img.get_height() ))
         pygame.display.flip()
         pygame.time.delay(100)
     pygame.quit()
