@@ -105,8 +105,9 @@ class GameSetupApp(tk.Toplevel):
         super().__init__(master)
         self.master = master
         self.settings = {
-            "Number of Players"  :   1,
-            "Default Controls"   :   True
+            "Number of Players"     :   1,
+            "Default Controls"      :   True,
+            "Controller Preference" :   "Joystick"
         }
         self.start_game = False
         self.create_widgets()
