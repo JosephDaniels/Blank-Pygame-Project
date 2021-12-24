@@ -44,8 +44,9 @@ class MapLayer(object):
         self.width = parent_map.width
         self.tiles = decoded_layer_data["data"]  # is a list of gids for the layer
         # scan through the tile gids (so we can cache all the possible rotated tile images)
-        for gid in self.tiles:
-            self.parent.cache_tile_gid(gid)
+        for gid in self.tiles: # scan the gids in the current layer
+            if gid != 0:
+                self.parent.cache_tile_rotation(gid) # ...and have the parent TileMap cache any rotations
 
     def render(self, target_surface):
         pass
@@ -87,12 +88,24 @@ class TiledMap(object):
             self.layers[name] = MapLayer(self, layer_data)
 
 
-    def cache_tile_rotation(self, gid, img):
+    def cache_tile_rotation(self, gid):
         """in the tmx file format, a tile's gid also determines the rotation of
         a tile image. So this will cache the rotated tile image so that rendering
         is more efficient"""
-        if not gid in self.tile_images.keys():
-            self.tile_images[gid] = TileImage(gid)
+        ## This is just to offset it so that it obeys Tiled's naming scheme
+        if not gid in self.images_by_gid.keys(): # if not already in cache, must be rotated...
+            print (f"gid = {gid}")
+            masked_gid = gid & 0x1FFFFFFF  # mask off all bits except upper 3 bits
+            print(f"masked id = {masked_gid}")
+            rotation_gid = gid & 0xE0000000  # mask off upper 3 bits
+            image = self.images_by_gid[masked_gid]  ## ERROR
+            if rotation_gid & 0x20000000:
+                image = pygame.transform.flip(image, flip_x=True, flip_y=True)
+            if rotation_gid & 0x40000000:
+                image = pygame.transform.flip(image, flip_x=False, flip_y=True)
+            if rotation_gid & 0x80000000:
+                image = pygame.transform.flip(image, flip_x=True, flip_y=False)
+            self.images_by_gid[gid] = image
 
 
     def dump(self):
