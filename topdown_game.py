@@ -6,18 +6,45 @@ from animation import AnimationSequence
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 768
 
+class Viewport(object):
+    def __init__(self, screen,
+                 viewport_width = SCREEN_WIDTH,
+                 viewport_height = SCREEN_HEIGHT):
+        self.screen = screen
+        self.viewport_width = viewport_width
+        self.viewport_height = viewport_height
+        ## This is the viewport origin in game coordinates
+        self.game_x, self.game_y = 0, 0
+
+    def shift_viewport(self, dx, dy):
+        self.game_x += dx
+        self.game_y += dy
+
+    def render(self, obj):
+        screen_x = -(self.game_x) + (obj.x)
+        screen_y = -(self.game_y) + (obj.y)
+        obj.draw(self.screen, screen_x, self.height-screen_y)
+
+    def set_origin(self, x, y):
+        self.game_x, self.game_y = x, y
+
 class Game_Manager(object):
     """ Handles all the game objects,
         and manages the game stuff!!!"""
     def __init__(self, settings):
+
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.viewport = Viewport(self.screen, SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.viewport.set_origin(-SCREEN_WIDTH/2,
+                                 -SCREEN_HEIGHT/2)
+
         self.settings = settings
         self.load_settings()
         print ("Manager initialized. Settings :"+str(self.settings))
-
         ## Add players to the game.
         self.players = []
         for num_players in range(self.settings["Number of Players"]):
-            player = Player(150*num_players,512,"images/player.png")
+            player = Player(0, 0, "images/player.png")
             self.players.append(player)
         self.actors = []
         self.objects = []
@@ -25,7 +52,6 @@ class Game_Manager(object):
         self.background = GameObject(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,"images/test_background_DO_NOT_SHIP.jpg")
         self.background.resize(1024, 768)
         self.anim_counter = 2
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.bounds = self.screen.get_rect()
 
         pygame.init()
@@ -87,28 +113,29 @@ class Game_Manager(object):
 
     def start_loop(self):
         while self.running == True:
-            ## HANDLE EVENTS
+
+            # HANDLE EVENTS
             if self.settings["Controller Preference"] == "Keyboard":
                 self.handle_keyboard_events(self.players[0])
             elif self.settings["Controller Preference"] == "Joystick":
                 self.handle_joystick_events(self.players[0])
 
-            ## UPDATE PHYSICS AND POSITION
+            # UPDATE PHYSICS AND POSITION
             for player in self.players:
                 player.update()
             for actor in self.actors:
                 actor.update()
 
-            ## DISPLAY ALL OBJECTS
+            # RENDER STUFF
 
-            ## BACKGROUND
-            self.background.draw(self.screen)
-            ## PLAYER
+            # BACKGROUND
+            self.viewport.render(self.background)
+
+            # PLAYER
             for player in self.players:
-                player.draw(self.screen)
+                self.viewport.render(player)
 
             pygame.display.flip()
-
             time.sleep(0.01)
 
 class GameObject(object):
@@ -118,9 +145,10 @@ class GameObject(object):
         self.image_file = image_file
         self.image = pygame.image.load(self.image_file)
 
-    def draw(self, surface):
-        ## Draws to actual game coordinates
-        surface.blit(self.image, (self.x-self.image.get_width()/2, SCREEN_HEIGHT-self.y-self.image.get_height()/2))
+    def draw(self, surface, dest_x, dest_y):
+        ## Draws to game coordinates
+        surface.blit(self.image, (dest_x,
+                                  dest_y))
 
     def resize(self, new_width, new_height):
         self.image = pygame.transform.scale(self.image, (new_width, new_height))
@@ -172,11 +200,6 @@ class Player(GameObject):
                                                 22*self.scale_factor,
                                                 28*self.scale_factor, 8)
 
-    def draw(self, surface):
-        self.current_animation.draw(surface, self.x-self.current_animation.w/2,
-                                    SCREEN_HEIGHT-self.y-self.current_animation.h/2,
-                                    self.current_frame)
-
     def update(self):
         if abs(self.vx) == 4 and abs(self.vy) == 4:
             self.x += self.vx*0.7
@@ -193,6 +216,12 @@ class Player(GameObject):
             self.current_frame = 0
         if self.vx == 0 and self.vy == 0:
             self.current_frame = 0
+
+    def draw(self, surface, dest_x, dest_y):
+        self.current_animation.draw(surface,
+                                    dest_x - self.current_animation.w / 2,
+                                    SCREEN_HEIGHT - dest_y - self.current_animation.h / 2,
+                                    self.current_frame)
 
     def move_right(self):
         self.current_animation = self.walk_right_anim

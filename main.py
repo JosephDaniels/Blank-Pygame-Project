@@ -17,7 +17,6 @@ def main_loop():
 
 def do_game(settings):
     print ("Starting the game...")
-    p = Player(512,512,"images/player.png")
     manager = Game_Manager(settings)
     manager.start_loop()
 
