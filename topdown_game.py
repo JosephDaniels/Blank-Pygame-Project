@@ -47,22 +47,22 @@ class Game_Manager(object):
             if event.type == pygame.KEYDOWN:
                 self.handle_escape_key_events(event)
                 if event.key in (pygame.K_RIGHT, pygame.K_d):
-                    self.player.move_right()
+                    player.move_right()
                 elif event.key in (pygame.K_LEFT, pygame.K_a):
-                    self.player.move_left()
+                    player.move_left()
                 elif event.key in (pygame.K_UP, pygame.K_w):
-                    self.player.move_up()
+                    player.move_up()
                 elif event.key in (pygame.K_DOWN, pygame.K_s):
-                    self.player.move_down()
+                    player.move_down()
             if event.type == pygame.KEYUP:
                 if event.key in (pygame.K_RIGHT, pygame.K_d):
-                    self.player.stop_move_x()
+                    player.stop_move_x()
                 elif event.key in (pygame.K_LEFT, pygame.K_a):
-                    self.player.stop_move_x()
+                    player.stop_move_x()
                 elif event.key in (pygame.K_UP, pygame.K_w):
-                    self.player.stop_move_y()
+                    player.stop_move_y()
                 elif event.key in (pygame.K_DOWN, pygame.K_s):
-                    self.player.stop_move_y()
+                    player.stop_move_y()
 
     def handle_joystick_events(self, player):
         for event in pygame.event.get():

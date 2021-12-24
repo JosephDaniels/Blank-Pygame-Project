@@ -1,6 +1,19 @@
 import pygame
-import pytmx
 import json
+
+""""
+BEWARE: HERE BE DRAGONS
+
+so after some messing around with Tiled's tmx format map files,
+be aware that the tile gid is offset by one compared to what it is as map data.
+
+The reason is, is that zeroes are equal to non-tiles (NULL)
+but, a tile id of zero is allowed.
+
+So all tile ids need to be incremented +1 in order to match the map data!!! (BAD)
+
+They should not have allowed zero as a tile id!!! SO CONFUSING!!!
+"""
 
 
 class TileImage(object):
@@ -38,7 +51,7 @@ class MapLayer(object):
         pass
 
 
-class MapLevel(object):
+class TiledMap(object):
     def __init__(self, filename):
         """creates a MapLevel object from the given Tiled json file"""
         self.filename = filename
@@ -54,13 +67,17 @@ class MapLevel(object):
         self.images_by_gid = {}
         for tile_set in data["tilesets"]:
             for tile in tile_set["tiles"]:
-                tmx_gid = tile["id"]
+                tmx_gid = tile["id"]+1  ## Tiled increments all tiles by +1 because 0 is equivalent to blank
+                ## also some tiles are gid 0 and are therefore gid 1
+                ## I know it's really confusing ><
+                ## So a gid of 0 is actually a gid of 1
                 filename = tile["image"]
                 # check if the image file has been loaded already
                 if not(filename in self.images_by_filename):
                     img = pygame.image.load("./maps/"+filename).convert()
                     self.images_by_filename[filename] = img
                     self.images_by_gid[tmx_gid] = img
+
 
         self.layers = {} # index the layers by their name
         # load each layer
@@ -108,7 +125,7 @@ def test2():
     screen = pygame.display.set_mode((1280,1024))
 
     # load the tile map
-    tiled_map = MapLevel("./maps/test_level.json")
+    tiled_map = TiledMap("./maps/test_level.json")
     tiled_map.dump()
     running = False
     frame_num = 0
@@ -122,6 +139,7 @@ def test2():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
+                    pygame.quit()
 
         pygame.time.delay(100)
     pygame.quit()
