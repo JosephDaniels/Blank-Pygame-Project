@@ -20,13 +20,14 @@ class Viewport(object):
         self.game_x += dx
         self.game_y += dy
 
+    def set_origin(self, x, y):
+        self.game_x, self.game_y = x, y
+
     def render(self, obj):
         screen_x = -(self.game_x) + (obj.x)
         screen_y = -(self.game_y) + (obj.y)
-        obj.draw(self.screen, screen_x, self.height-screen_y)
+        obj.draw(self.screen, screen_x, screen_y)
 
-    def set_origin(self, x, y):
-        self.game_x, self.game_y = x, y
 
 class Game_Manager(object):
     """ Handles all the game objects,
@@ -49,8 +50,12 @@ class Game_Manager(object):
         self.actors = []
         self.objects = []
         self.running = True
-        self.background = GameObject(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,"images/test_background_DO_NOT_SHIP.jpg")
+
+        self.background = GameObject(-SCREEN_WIDTH/2,
+                                     -SCREEN_HEIGHT/2,
+                                     "images/test_background_DO_NOT_SHIP.jpg")
         self.background.resize(1024, 768)
+
         self.anim_counter = 2
         self.bounds = self.screen.get_rect()
 
@@ -123,8 +128,12 @@ class Game_Manager(object):
             # UPDATE PHYSICS AND POSITION
             for player in self.players:
                 player.update()
-            for actor in self.actors:
-                actor.update()
+
+            # for actor in self.actors:
+            #     actor.update()
+
+            self.viewport.set_origin(player.x - SCREEN_WIDTH / 2,
+                                     player.y - SCREEN_HEIGHT / 2)
 
             # RENDER STUFF
 
@@ -147,6 +156,7 @@ class GameObject(object):
 
     def draw(self, surface, dest_x, dest_y):
         ## Draws to game coordinates
+        dest_y = -dest_y
         surface.blit(self.image, (dest_x,
                                   dest_y))
 
@@ -220,7 +230,7 @@ class Player(GameObject):
     def draw(self, surface, dest_x, dest_y):
         self.current_animation.draw(surface,
                                     dest_x - self.current_animation.w / 2,
-                                    SCREEN_HEIGHT - dest_y - self.current_animation.h / 2,
+                                    SCREEN_HEIGHT - dest_y + self.current_animation.h / 2,
                                     self.current_frame)
 
     def move_right(self):
