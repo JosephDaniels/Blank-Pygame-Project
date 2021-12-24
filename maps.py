@@ -13,27 +13,27 @@ but, a tile id of zero is allowed.
 So all tile ids need to be incremented +1 in order to match the map data!!! (BAD)
 
 They should not have allowed zero as a tile id!!! SO CONFUSING!!!
+
+BEWARE: MORE ISSUES
+
+ABANDON HOPE ALL YEE WHO ENTER
+
+Okay so we determined that the flip horizontal bits for tiles really means
+ROTATE 90 degrees horizontal.
+
+This is important because otherwise you're screwed!!!
+
+There's no way to flip an arrow turn sideways just by flipping it up and down left and right!
+
+You must ROTATE!!!
+
+Turns out FLIP_DIAGONAL is actually a combination of two moves: 
+
+Flip vertical THEN a rotation of -90 degrees.
+
+( misnomer from the documentation, it literally calls it flip
+when it actually wants you to do something else)
 """
-
-
-class TileImage(object):
-    """create the pygame render image for a given tile"""
-    def __init__(self, tmx_gid, src_img):
-        self.ident = tmx_gid
-        self.img = src_img.copy() # make a copy so rotations don't clobber the original
-        # check if the image is rotated...
-        self.flipH = False
-        self.flipV = False
-        self.flipXY = False
-        if tmx_gid & 0x20000000:
-            self.flipXY = True  # flip diagonally in the xy direction
-            self.img = pygame.transform.flip(self.img, flip_x=True, flip_y=True)
-        if tmx_gid & 0x40000000:
-            self.flipV = True  # flip vertically
-            self.img = pygame.transform.flip(self.img, flip_x=False, flip_y=True)
-        if tmx_gid & 0x80000000:
-            self.flipH = True # flip horizontally
-            self.img = pygame.transform.flip(self.img, flip_x = True, flip_y = False)
 
 
 class MapLayer(object):
@@ -99,11 +99,13 @@ class TiledMap(object):
             print(f"masked id = {masked_gid}")
             rotation_gid = gid & 0xE0000000  # mask off upper 3 bits
             image = self.images_by_gid[masked_gid]  ## ERROR
-            if rotation_gid & 0x20000000:
-                image = pygame.transform.flip(image, flip_x=True, flip_y=True)
-            if rotation_gid & 0x40000000:
+            if rotation_gid & 0x20000000:  # Flip diagonal
                 image = pygame.transform.flip(image, flip_x=False, flip_y=True)
-            if rotation_gid & 0x80000000:
+                image = pygame.transform.rotate(image, -90)
+            if rotation_gid & 0x40000000:  # Rotate 90
+                 # image = pygame.transform.rotate(image, -90)
+                 image = pygame.transform.flip(image, flip_x=False, flip_y=True)
+            if rotation_gid & 0x80000000:  # Mirror horizontal, WORKING
                 image = pygame.transform.flip(image, flip_x=True, flip_y=False)
             self.images_by_gid[gid] = image
 
@@ -121,9 +123,10 @@ class TiledMap(object):
         j = 0
         layer = self.layers[layer_name]
         map_width = self.width
-        for tile in layer.tiles:
-            img = None
-            if img:
+        tile_width, tile_height = 64, 64
+        for gid in layer.tiles:
+            if gid != 0:
+                img = self.images_by_gid[gid]
                 target_surface.blit(img, (i * tile_width, j * tile_height))
             i += 1
             if i >= map_width:
@@ -140,11 +143,14 @@ def test2():
     # load the tile map
     tiled_map = TiledMap("./maps/test_level.json")
     tiled_map.dump()
-    running = False
+    running = True
     frame_num = 0
 
     # do a test render and see if it shows up correctly
     tiled_map.render_layer("ground", screen)
+    tiled_map.render_layer("walls", screen)
+    # tiled_map.render_layer("test", screen)  ## This really helped out!!!
+
     pygame.display.flip()
 
     while running:
@@ -155,7 +161,6 @@ def test2():
                     pygame.quit()
 
         pygame.time.delay(100)
-    pygame.quit()
 
 
 if __name__ == "__main__":
