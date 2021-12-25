@@ -54,6 +54,7 @@ class MapLayer(object):
     def draw(self, target_surface,
              dest_x,
              dest_y):
+        dest_x, dest_y = int(dest_x), int(dest_y)
         ## Draws to game coordinates
         dest_y = -dest_y
         # render the ground layer by iterating through all the tiles

@@ -25,8 +25,8 @@ class Viewport(object):
         self.game_x, self.game_y = x, y
 
     def render(self, obj, debug = False):
-        screen_x = -(self.game_x) + (obj.x)
-        screen_y = -(self.game_y) + (obj.y)
+        screen_x = int(-(self.game_x) + (obj.x))
+        screen_y = int(-(self.game_y) + (obj.y))
         obj.draw(self.screen, screen_x, screen_y)
         if debug:
             print (screen_x, screen_y)
@@ -140,13 +140,10 @@ class Game_Manager(object):
             # RENDER STUFF
 
             # MAPS
-            # self.viewport.render(self.background)
+            self.screen.fill((0,0,0))
 
             self.viewport.render(self.tiled_map.layers["ground"])
             self.viewport.render(self.tiled_map.layers["walls"])
-
-            # self.tiled_map.render_layer("ground", self.screen)
-            # self.tiled_map.render_layer("walls", self.screen)
 
             # PLAYER
             for player in self.players:
