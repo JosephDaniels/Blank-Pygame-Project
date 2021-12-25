@@ -23,10 +23,12 @@ class Viewport(object):
     def set_origin(self, x, y):
         self.game_x, self.game_y = x, y
 
-    def render(self, obj):
+    def render(self, obj, debug = False):
         screen_x = -(self.game_x) + (obj.x)
         screen_y = -(self.game_y) + (obj.y)
         obj.draw(self.screen, screen_x, screen_y)
+        if debug:
+            print (screen_x, screen_y)
 
 
 class Game_Manager(object):
@@ -142,7 +144,7 @@ class Game_Manager(object):
 
             # PLAYER
             for player in self.players:
-                self.viewport.render(player)
+                self.viewport.render(player, debug = True)
 
             pygame.display.flip()
             time.sleep(0.01)
@@ -229,10 +231,9 @@ class Player(GameObject):
 
     def draw(self, surface, dest_x, dest_y):
         self.current_animation.draw(surface,
-                                    dest_x - self.current_animation.w / 2,
-                                    SCREEN_HEIGHT - dest_y + self.current_animation.h / 2,
+                                    dest_x,
+                                    SCREEN_HEIGHT - dest_y,
                                     self.current_frame)
-
     def move_right(self):
         self.current_animation = self.walk_right_anim
         self.vx = 4
