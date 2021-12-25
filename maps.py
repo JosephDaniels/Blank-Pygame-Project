@@ -38,23 +38,44 @@ when it actually wants you to do something else)
 
 class MapLayer(object):
     """  creates a layer plane from layer data decoded from the tmx file """
-    def __init__(self, parent_map, decoded_layer_data):
-        self.parent = parent_map
+    def __init__(self,
+                 parent_map,
+                 decoded_layer_data):
+        self.x, self.y = parent_map.x, parent_map.y
+        self.parent_map = parent_map
         self.height = parent_map.height
         self.width = parent_map.width
         self.tiles = decoded_layer_data["data"]  # is a list of gids for the layer
         # scan through the tile gids (so we can cache all the possible rotated tile images)
         for gid in self.tiles: # scan the gids in the current layer
             if gid != 0:
-                self.parent.cache_tile_rotation(gid) # ...and have the parent TileMap cache any rotations
+                self.parent_map.cache_tile_rotation(gid) # ...and have the parent TileMap cache any rotations
 
-    def render(self, target_surface):
-        pass
+    def draw(self, target_surface,
+             dest_x,
+             dest_y):
+        ## Draws to game coordinates
+        dest_y = -dest_y
+        # render the ground layer by iterating through all the tiles
+        i = 0
+        j = 0
+        map_width = self.width
+        tile_width, tile_height = 64, 64
+        for gid in self.tiles:
+            if gid != 0:
+                img = self.parent_map.images_by_gid[gid]
+                target_surface.blit(img, (dest_x + i * tile_width,
+                                          dest_y + j * tile_height))
+            i += 1
+            if i >= map_width:
+                i = 0
+                j += 1
 
 
 class TiledMap(object):
-    def __init__(self, filename):
+    def __init__(self, filename, x, y):
         """creates a MapLevel object from the given Tiled json file"""
+        self.x, self.y = x, y  # Game coordinates / Origin
         self.filename = filename
         data = json.load(open(filename))
         # decode
@@ -116,8 +137,9 @@ class TiledMap(object):
         print(f"There are {len(self.images_by_filename)} tile images loaded")
         print(f"There are {len(self.layers)} layers loaded")
 
-
-    def render_layer(self, layer_name, target_surface):
+    def render_layer(self,
+             layer_name,
+             target_surface):
         # render the ground layer by iterating through all the tiles
         i = 0
         j = 0

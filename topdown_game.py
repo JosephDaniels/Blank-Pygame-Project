@@ -2,6 +2,7 @@ import pygame
 import time
 import sys
 from animation import AnimationSequence
+from maps import *
 
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 768
@@ -53,10 +54,9 @@ class Game_Manager(object):
         self.objects = []
         self.running = True
 
-        self.background = GameObject(-SCREEN_WIDTH/2,
-                                     -SCREEN_HEIGHT/2,
-                                     "images/test_background_DO_NOT_SHIP.jpg")
-        self.background.resize(1024, 768)
+        self.tiled_map = TiledMap("./maps/test_level.json",
+                                  -SCREEN_WIDTH/2,
+                                  -SCREEN_HEIGHT/2)
 
         self.anim_counter = 2
         self.bounds = self.screen.get_rect()
@@ -139,8 +139,14 @@ class Game_Manager(object):
 
             # RENDER STUFF
 
-            # BACKGROUND
-            self.viewport.render(self.background)
+            # MAPS
+            # self.viewport.render(self.background)
+
+            self.viewport.render(self.tiled_map.layers["ground"])
+            self.viewport.render(self.tiled_map.layers["walls"])
+
+            # self.tiled_map.render_layer("ground", self.screen)
+            # self.tiled_map.render_layer("walls", self.screen)
 
             # PLAYER
             for player in self.players:
