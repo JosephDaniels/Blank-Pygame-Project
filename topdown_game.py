@@ -134,6 +134,12 @@ class Game_Manager(object):
             # for actor in self.actors:
             #     actor.update()
 
+            # HANDLE COLLISIONS
+
+            for tile in self.tiled_map.layers["walls"].tiles:
+                # if player.is_collided_with(tile):
+                #     print ("COLLISION!!!")
+
             self.viewport.set_origin(player.x - SCREEN_WIDTH / 2,
                                      player.y - SCREEN_HEIGHT / 2)
 
@@ -144,10 +150,11 @@ class Game_Manager(object):
 
             self.viewport.render(self.tiled_map.layers["ground"])
             self.viewport.render(self.tiled_map.layers["walls"])
+            self.viewport.render(self.tiled_map.layers["doors"])
 
             # PLAYER
             for player in self.players:
-                self.viewport.render(player, debug = True)
+                self.viewport.render(player)
 
             pygame.display.flip()
             time.sleep(0.01)
@@ -190,7 +197,7 @@ class Player(GameObject):
         self.current_animation = self.walk_left_anim
 
     def load_animations(self):
-        self.scale_factor = 4
+        self.scale_factor = 3
         self.sprite_sheet = pygame.image.load("./images/sprite_sheet.gif")
         self.sprite_sheet = pygame.transform.scale(self.sprite_sheet, (400*self.scale_factor,
                                                                        780*self.scale_factor))

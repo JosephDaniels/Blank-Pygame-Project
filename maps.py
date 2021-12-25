@@ -72,6 +72,13 @@ class MapLayer(object):
                 i = 0
                 j += 1
 
+    def is_collided_with(self, target):
+        rect1 = self.image.get_rect()
+        rect1.topleft = (self.x,self.y)
+        rect2 = target.image.get_rect()
+        rect2.topleft = (target.x, target.y)
+        return rect1.colliderect(rect2)
+
 
 class TiledMap(object):
     def __init__(self, filename, x, y):
