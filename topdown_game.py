@@ -1,16 +1,19 @@
-import pygame
 import time
 import sys
+import logging
 from animation import AnimationSequence
 from maps import *
+
+logging.basicConfig(filename="game.log", level=logging.DEBUG)
+
 
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 768
 
 class Viewport(object):
     def __init__(self, screen,
-                 viewport_width = SCREEN_WIDTH,
-                 viewport_height = SCREEN_HEIGHT):
+                 viewport_width=SCREEN_WIDTH,
+                 viewport_height=SCREEN_HEIGHT):
         self.screen = screen
         self.viewport_width = viewport_width
         self.viewport_height = viewport_height
@@ -24,36 +27,40 @@ class Viewport(object):
     def set_origin(self, x, y):
         self.game_x, self.game_y = x, y
 
-    def render(self, obj, debug = False):
+    def render(self, obj):
         screen_x = int(-(self.game_x) + (obj.x))
         screen_y = int(-(self.game_y) + (obj.y))
         obj.draw(self.screen, screen_x, screen_y)
-        if debug:
-            print (screen_x, screen_y)
+        logging.debug(msg="screen_x=%s screen_y=%s" % (screen_x, screen_y))
 
 
 class Game_Manager(object):
     """ Handles all the game objects,
         and manages the game stuff!!!"""
-    def __init__(self, settings):
-
+    def __init__(self, settings={}):
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.viewport = Viewport(self.screen, SCREEN_WIDTH, SCREEN_HEIGHT)
         self.viewport.set_origin(-SCREEN_WIDTH/2,
                                  -SCREEN_HEIGHT/2)
+        if settings == {}:
+            pass
+        else:
+            self.settings = settings
+            self.load_settings()
 
-        self.settings = settings
-        self.load_settings()
-        print ("Manager initialized. Settings :"+str(self.settings))
-        ## Add players to the game.
+            logging.debug("Manager initialized. Settings :"+str(self.settings))
+
+        # Add players to the game.
+        self.main_player = None
         self.players = []
-        for num_players in range(self.settings["Number of Players"]):
-            player = Player(0, 0, "images/player.png")
-            self.players.append(player)
+        # for num_players in range(self.settings["Number of Players"]):
+        #     player = Player(0, 0, "images/player.png")
+        #     self.players.append(player)
         self.actors = []
         self.objects = []
         self.running = True
 
+        # Creating a lot of debug msgs!!!
         self.tiled_map = TiledMap("./maps/test_level.json",
                                   -SCREEN_WIDTH/2,
                                   -SCREEN_HEIGHT/2)
@@ -63,6 +70,16 @@ class Game_Manager(object):
 
         pygame.init()
         pygame.display.set_caption("Top Down Game")
+
+    def add_main_player(self, player):
+        # Add the main character that the game focuses on
+        self.main_player = player
+        logging.debug("player added: %s" % str(player))
+
+
+    def add_player(self, player):
+        # Adds additional players to the game
+        self.players.append(player)
 
     def load_settings(self):
         if self.settings["Controller Preference"] == "Joystick":
@@ -123,25 +140,28 @@ class Game_Manager(object):
 
             # HANDLE EVENTS
             if self.settings["Controller Preference"] == "Keyboard":
-                self.handle_keyboard_events(self.players[0])
+                self.handle_keyboard_events(self.main_player)
             elif self.settings["Controller Preference"] == "Joystick":
-                self.handle_joystick_events(self.players[0])
+                self.handle_joystick_events(self.main_player)
 
             # UPDATE PHYSICS AND POSITION
-            for player in self.players:
-                player.update()
+            self.main_player.update()
+
+            # for player in self.players:
+            #     player.update()
 
             # for actor in self.actors:
             #     actor.update()
 
             # HANDLE COLLISIONS
 
-            for tile in self.tiled_map.layers["walls"].tiles:
+            # for tile in self.tiled_map.layers["walls"].tiles:
+            #     pass
                 # if player.is_collided_with(tile):
                 #     print ("COLLISION!!!")
 
-            self.viewport.set_origin(player.x - SCREEN_WIDTH / 2,
-                                     player.y - SCREEN_HEIGHT / 2)
+            self.viewport.set_origin(self.main_player.x - SCREEN_WIDTH / 2,
+                                     self.main_player.y - SCREEN_HEIGHT / 2)
 
             # RENDER STUFF
 
@@ -270,13 +290,4 @@ class Player(GameObject):
     def stop_move_y(self):
         self.vy = 0
 
-def test_game():
-    p = Player(512,512,"images/player.png")
-    settings = {}
-    manager = Game_Manager(settings)
-    manager.add_player(p)
-    manager.start_loop()
-
-if __name__ == "__main__":
-    test_game()
 

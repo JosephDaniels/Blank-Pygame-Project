@@ -20,7 +20,8 @@ def do_game(settings):
 
     # SETUP
     manager = Game_Manager(settings)
-
+    p = Player(512, 512, "images/player.png")
+    manager.add_main_player(p)
     # GAME LOOP
     manager.start_loop()
 
