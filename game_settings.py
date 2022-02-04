@@ -1,6 +1,13 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 
+""" THIS MODULE CREATES A DIALOGUE WHERE THE PLAYER GETS TO CHOOSE
+ GAME SETTINGS SUCH AS JOYSTICK, RESOLUTION, NUM PLAYERS ETC
+ 
+ 
+ To use, all you have to do is import this module and call game_settings_stage(),
+ which will return a dictionary of settings that the player has chosen."""
+
 class GameSettingsWindow(tk.Toplevel):
     def __init__(self, master):
         super().__init__(master)
@@ -92,13 +99,11 @@ class ControllerSettingsWindow(tk.Toplevel):
         self.master.settings["Controller Preference"] = "Keyboard"
         message = tk.messagebox.showinfo(title="Controls switched.",
                                          message="Keyboard controls chosen.")
-        print ("Keyboard chosen!")
 
     def apply_joystick_settings(self):
         self.master.settings["Controller Preference"] = "Joystick"
         message = tk.messagebox.showinfo(title="Controls switched.",
                                          message="Joystick controls chosen.")
-        print("Joystick chosen!")
 
 class GameSetupApp(tk.Toplevel):
     def __init__(self, master):
@@ -135,17 +140,20 @@ class GameSetupApp(tk.Toplevel):
         controller_settings_button.grid(column=0, row=row)
         row = row+1
 
+        # This includes screen resolution settings
         video_settings_button = tk.Button(self,
                                     text="Video Settings",
                                     command=self.open_video_settings)
         video_settings_button.grid(column=0, row=row)
         row = row+1
 
-        audio_settings_button = tk.Button(self,
-                                    text="Sound Settings",
-                                    command=self.open_sound_settings)
-        audio_settings_button.grid(column=0, row=row)
-        row = row+1
+
+
+        # audio_settings_button = tk.Button(self,
+        #                             text="Sound Settings",
+        #                             command=self.open_sound_settings)
+        # audio_settings_button.grid(column=0, row=row)
+        # row = row+1
 
         start_game_button = tk.Button(self,
                                     text="Start Game",
@@ -175,15 +183,19 @@ class GameSetupApp(tk.Toplevel):
         pass
 
     def do_start_game(self):
-        print (self.settings)
-        self.start_game = True
+        self.settings["start_game"] = True
         self.quit()
 
-def test_1():
+def game_settings_stage():
+    # Tkinter Settings Window
     root = tk.Tk()
     root.withdraw()
-    myapp = GameSetupApp(root)
-    myapp.mainloop()
+    app = GameSetupApp(root)
+    app.mainloop()  ## Tkinter main loop
+    settings = app.settings
+    app.destroy()
+    return settings
 
 if __name__ == "__main__":
-    test_1()
+    print(game_settings_stage())
+    print("TKTest complete.")

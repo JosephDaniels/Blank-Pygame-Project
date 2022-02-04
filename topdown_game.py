@@ -1,3 +1,6 @@
+"""This file implements the actual playable game"""
+
+
 import time
 import sys
 import logging
@@ -50,14 +53,17 @@ class Game_Manager(object):
 
             logging.debug("Manager initialized. Settings :"+str(self.settings))
 
-        # Add players to the game.
-        self.main_player = None
-        self.players = []
-        # for num_players in range(self.settings["Number of Players"]):
-        #     player = Player(0, 0, "images/player.png")
-        #     self.players.append(player)
-        self.actors = []
-        self.objects = []
+        # SPECIAL MAIN PLAYER CODE
+        self.main_player = Player(0,0, "images/player.png")
+        self.players = []  # These are the other player entities
+
+        # OTHER STUFF
+        self.actors = []  # These are the enemy creatures
+        self.pickups = []  # These are items that are instantly "picked up" by player entities
+        self.furniture = []  # These are just all the interactible furniture and set pieces
+        self.projectiles = []  # A list of moving bullets and arrows
+
+        # START FLAG
         self.running = True
 
         # Creating a lot of debug msgs!!!
@@ -135,9 +141,9 @@ class Game_Manager(object):
                     print ("Stop Move")
                     player.stop_move()
 
-    def start_loop(self):
+    def start_game(self):
+        # This will fail if settings are not set properly
         while self.running == True:
-
             # HANDLE EVENTS
             if self.settings["Controller Preference"] == "Keyboard":
                 self.handle_keyboard_events(self.main_player)
@@ -290,4 +296,40 @@ class Player(GameObject):
     def stop_move_y(self):
         self.vy = 0
 
+def map_test():
+    """ test of our own json map reader"""
+    pygame.init()
+    screen = pygame.display.set_mode((1280,1024))
+    # load the tile map
+    tiled_map = TiledMap("./maps/test_level.json", 0, 0)
+    tiled_map.dump()
+    running = True
+    frame_num = 0
 
+    # do a test render and see if it shows up correctly
+    tiled_map.render_layer("ground", screen)
+    tiled_map.render_layer("walls", screen)
+    # tiled_map.render_layer("test", screen)  ## This really helped out!!!
+
+    pygame.display.flip()
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                    pygame.quit()
+
+        pygame.time.delay(100)
+
+def main_loop_test_settings():
+    pygame.init()
+    settings = {
+        "Controller Preference"  :  "Keyboard"
+    }
+    gm = Game_Manager(settings)
+    gm.start_game()
+
+
+if __name__ == "__main__":
+    main_loop_test_settings()
