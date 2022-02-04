@@ -36,11 +36,11 @@ class Viewport(object):
         obj.draw(self.screen, screen_x, screen_y)
         logging.debug(msg="screen_x=%s screen_y=%s" % (screen_x, screen_y))
 
-
 class Game_Manager(object):
     """ Handles all the game objects,
         and manages the game stuff!!!"""
-    def __init__(self, settings={}):
+    def __init__(self, settings={}, map_name=""):
+        self.map_name = map_name
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.viewport = Viewport(self.screen, SCREEN_WIDTH, SCREEN_HEIGHT)
         self.viewport.set_origin(-SCREEN_WIDTH/2,
@@ -54,7 +54,7 @@ class Game_Manager(object):
             logging.debug("Manager initialized. Settings :"+str(self.settings))
 
         # SPECIAL MAIN PLAYER CODE
-        self.main_player = Player(0,0, "images/player.png")
+        self.main_player = Player(0,0)
         self.players = []  # These are the other player entities
 
         # OTHER STUFF
@@ -67,7 +67,7 @@ class Game_Manager(object):
         self.running = True
 
         # Creating a lot of debug msgs!!!
-        self.tiled_map = TiledMap("./maps/test_level.json",
+        self.tiled_map = TiledMap(self.map_name,
                                   -SCREEN_WIDTH/2,
                                   -SCREEN_HEIGHT/2)
 
@@ -175,22 +175,21 @@ class Game_Manager(object):
             self.screen.fill((0,0,0))
 
             self.viewport.render(self.tiled_map.layers["ground"])
-            self.viewport.render(self.tiled_map.layers["walls"])
-            self.viewport.render(self.tiled_map.layers["doors"])
+
+            for layer_name in self.tiled_map.layers.keys():
+                if layer_name != "ground":
+                    self.viewport.render(self.tiled_map.layers[layer_name])
 
             # PLAYER
-            for player in self.players:
-                self.viewport.render(player)
+            self.viewport.render(self.main_player)
 
             pygame.display.flip()
             time.sleep(0.01)
 
 class GameObject(object):
-    def __init__(self, x, y, image_file):
+    def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.image_file = image_file
-        self.image = pygame.image.load(self.image_file)
 
     def draw(self, surface, dest_x, dest_y):
         ## Draws to game coordinates
@@ -213,8 +212,8 @@ class GameObject(object):
         return rect1.colliderect(rect2)
 
 class Player(GameObject):
-    def __init__(self, x, y, image_file):
-        super().__init__(x, y, image_file)
+    def __init__(self, x, y):
+        super().__init__(x, y)
         self.vx = 0
         self.vy = 0
         self.anim_counter = 5
@@ -296,38 +295,12 @@ class Player(GameObject):
     def stop_move_y(self):
         self.vy = 0
 
-def map_test():
-    """ test of our own json map reader"""
-    pygame.init()
-    screen = pygame.display.set_mode((1280,1024))
-    # load the tile map
-    tiled_map = TiledMap("./maps/test_level.json", 0, 0)
-    tiled_map.dump()
-    running = True
-    frame_num = 0
-
-    # do a test render and see if it shows up correctly
-    tiled_map.render_layer("ground", screen)
-    tiled_map.render_layer("walls", screen)
-    # tiled_map.render_layer("test", screen)  ## This really helped out!!!
-
-    pygame.display.flip()
-
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-                    pygame.quit()
-
-        pygame.time.delay(100)
-
 def main_loop_test_settings():
     pygame.init()
     settings = {
         "Controller Preference"  :  "Keyboard"
     }
-    gm = Game_Manager(settings)
+    gm = Game_Manager(settings, map_name="./maps/forest_glade_v1.json")
     gm.start_game()
 
 

@@ -171,7 +171,7 @@ def test2():
     screen = pygame.display.set_mode((1280,1024))
 
     # load the tile map
-    tiled_map = TiledMap("./maps/test_level.json")
+    tiled_map = TiledMap("./maps/test_level.json", 0, 0)
     tiled_map.dump()
     running = True
     frame_num = 0
@@ -192,6 +192,35 @@ def test2():
 
         pygame.time.delay(100)
 
+def test3():
+    """ test of our own json map reader"""
+    pygame.init()
+    screen = pygame.display.set_mode((1280,1024))
+
+    # load the tile map
+    tiled_map = TiledMap("./maps/forest_glade_v1.json", 0, 0)
+    tiled_map.dump()
+    running = True
+    frame_num = 0
+
+    # do a test render and see if it shows up correctly
+    tiled_map.render_layer("ground", screen)
+    tiled_map.render_layer("trees", screen)
+    tiled_map.render_layer("plants", screen)
+    tiled_map.render_layer("items", screen)
+    # tiled_map.render_layer("test", screen)  ## This really helped out!!!
+
+    pygame.display.flip()
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                    pygame.quit()
+
+        pygame.time.delay(100)
+
 
 if __name__ == "__main__":
-    test2()
+    test3()
