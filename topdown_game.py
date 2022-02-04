@@ -40,7 +40,7 @@ class Game_Manager(object):
     """ Handles all the game objects,
         and manages the game stuff!!!"""
     def __init__(self, settings={}, map_name=""):
-        self.map_name = map_name
+        self.map_name = "./maps/"+map_name
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.viewport = Viewport(self.screen, SCREEN_WIDTH, SCREEN_HEIGHT)
         self.viewport.set_origin(-SCREEN_WIDTH/2,
@@ -300,7 +300,7 @@ def main_loop_test_settings():
     settings = {
         "Controller Preference"  :  "Keyboard"
     }
-    gm = Game_Manager(settings, map_name="./maps/forest_glade_v1.json")
+    gm = Game_Manager(settings, map_name="forest_glade_v1.json")
     gm.start_game()
 
 
