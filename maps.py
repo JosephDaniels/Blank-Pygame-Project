@@ -1,6 +1,8 @@
 import pygame
 import json
 
+from gameobject import GameObject
+
 """"
 BEWARE: HERE BE DRAGONS
 
@@ -35,6 +37,25 @@ Flip vertical THEN a rotation of -90 degrees.
 when it actually wants you to do something else)
 """
 
+class MapSet(object):
+    """ Sticks a bunch of maps together into larger world.
+
+     The size of the mapset is measured in map size, which is supposed to be a square.
+
+     TO BE DONE LATER
+     """
+    def __init__(self, mapset_name = "", maps_wide=2, maps_long=2):
+        self.mapset_name
+        self.maps_wide, self.maps_long = maps_wide, maps_long
+        self.map_files = {
+            1 : "forest_glade_v1.json",
+            2 : "test_level.json",
+        }
+        self.mapset = [[1,1],
+                       [1,2]]
+
+    def render(self):
+        pass
 
 class MapLayer(object):
     """  creates a layer plane from layer data decoded from the tmx file """
@@ -78,7 +99,6 @@ class MapLayer(object):
         rect2 = target.image.get_rect()
         rect2.topleft = (target.x, target.y)
         return rect1.colliderect(rect2)
-
 
 class TiledMap(object):
     def __init__(self, filename, x, y):
@@ -163,7 +183,21 @@ class TiledMap(object):
                 i = 0
                 j += 1
 
-
+    def get_tile_at(self, x, y, layer_name):
+        # returns a tile at a certain x and y game coordinate if it exists
+        x_offset = x-self.x # This is how far the character object is from the edge of the map
+        y_offset = y-self.y
+        # Now convert this offset to cell coordinates
+        cell_column = int(x_offset/self.tile_width)
+        cell_row = int(y_offset/self.tile_height)
+        tile_layer = self.layers[layer_name]
+        try:
+            tile = tile_layer[cell_column][cell_row]
+        except:
+            tile = None
+        if tile:
+            tileobject = GameObject(tile.x, tile.y, self.tile_width, self.tile_height)
+        return tileobject
 
 def test2():
     """ test of our own json map reader"""
@@ -221,6 +255,23 @@ def test3():
 
         pygame.time.delay(100)
 
+def test_get_tile():
+    pygame.init()
+    screen = pygame.display.set_mode((1280,1024))
+
+    # load the tile map
+    tiled_map = TiledMap("./maps/forest_glade_v1.json", 0, 0)
+    tiled_map.dump()
+    running = True
+    frame_num = 0
+
+    # do a test render and see if it shows up correctly
+    tiled_map.render_layer("ground", screen)
+    tiled_map.render_layer("trees", screen)
+    tiled_map.render_layer("plants", screen)
+    tiled_map.render_layer("items", screen)
+
+    print (tiled_map.get_tile_at(10,10, "ground"))
 
 if __name__ == "__main__":
-    test3()
+    test_get_tile()

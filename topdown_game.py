@@ -4,6 +4,10 @@
 import time
 import sys
 import logging
+
+import pygame
+
+from gameobject import GameObject
 from animation import AnimationSequence
 from maps import *
 
@@ -54,7 +58,7 @@ class Game_Manager(object):
             logging.debug("Manager initialized. Settings :"+str(self.settings))
 
         # SPECIAL MAIN PLAYER CODE
-        self.main_player = Player(0,0)
+        self.main_player = Player(0, 0)
         self.players = []  # These are the other player entities
 
         # OTHER STUFF
@@ -161,10 +165,9 @@ class Game_Manager(object):
 
             # HANDLE COLLISIONS
 
-            # for tile in self.tiled_map.layers["walls"].tiles:
-            #     pass
-                # if player.is_collided_with(tile):
-                #     print ("COLLISION!!!")
+            for tile in self.tiled_map.layers["walls"].tiles:
+                if player.is_collided_with(tile):
+                    print ("COLLISION!!!")
 
             self.viewport.set_origin(self.main_player.x - SCREEN_WIDTH / 2,
                                      self.main_player.y - SCREEN_HEIGHT / 2)
@@ -186,34 +189,9 @@ class Game_Manager(object):
             pygame.display.flip()
             time.sleep(0.01)
 
-class GameObject(object):
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def draw(self, surface, dest_x, dest_y):
-        ## Draws to game coordinates
-        dest_y = -dest_y
-        surface.blit(self.image, (dest_x,
-                                  dest_y))
-
-    def resize(self, new_width, new_height):
-        self.image = pygame.transform.scale(self.image, (new_width, new_height))
-
-    def get_rect(self):
-        self.rect = self.image.get_rect()
-        return self.rect
-
-    def is_collided_with(self, target):
-        rect1 = self.image.get_rect()
-        rect1.topleft = (self.x,self.y)
-        rect2 = target.image.get_rect()
-        rect2.topleft = (target.x, target.y)
-        return rect1.colliderect(rect2)
-
 class Player(GameObject):
-    def __init__(self, x, y):
-        super().__init__(x, y)
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
         self.vx = 0
         self.vy = 0
         self.anim_counter = 5
@@ -265,6 +243,7 @@ class Player(GameObject):
             self.current_frame = 0
 
     def draw(self, surface, dest_x, dest_y):
+        # Draw always draws to screen coordinates
         self.current_animation.draw(surface,
                                     dest_x,
                                     SCREEN_HEIGHT - dest_y,
