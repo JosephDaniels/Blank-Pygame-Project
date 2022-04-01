@@ -34,9 +34,13 @@ class Game_Manager(object):
         and manages the game stuff!!!"""
     def __init__(self):
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
         self.viewport = Viewport(self.screen, SCREEN_WIDTH, SCREEN_HEIGHT)
         self.viewport.set_origin(-SCREEN_WIDTH/2,
                                  -SCREEN_HEIGHT/2)
+        # set up the background
+        self.background_image = pygame.image.load("images/background.png").convert()
+        self.background = Background_Layer(self.background_image, 0, -300, 1200, 800)
 
         # SPECIAL MAIN PLAYER CODE
         self.main_player = Player(SCREEN_WIDTH/2, 200, 166, 210)
