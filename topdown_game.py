@@ -58,7 +58,8 @@ class Game_Manager(object):
             logging.debug("Manager initialized. Settings :"+str(self.settings))
 
         # SPECIAL MAIN PLAYER CODE
-        self.main_player = Player(0, 0)
+        self.main_player = Player(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 24, 28)
+
         self.players = []  # These are the other player entities
 
         # OTHER STUFF
@@ -165,9 +166,9 @@ class Game_Manager(object):
 
             # HANDLE COLLISIONS
 
-            for tile in self.tiled_map.layers["walls"].tiles:
-                if player.is_collided_with(tile):
-                    print ("COLLISION!!!")
+            # for tile in self.tiled_map.layers["walls"].tiles:
+            #     if player.is_collided_with(tile):
+            #         print ("COLLISION!!!")
 
             self.viewport.set_origin(self.main_player.x - SCREEN_WIDTH / 2,
                                      self.main_player.y - SCREEN_HEIGHT / 2)

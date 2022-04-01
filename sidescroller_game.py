@@ -28,8 +28,6 @@ class Viewport(object):
         screen_x = int(-(self.game_x) + (obj.x))
         screen_y = int(-(self.game_y) + (obj.y))
         obj.draw(self.screen, screen_x, screen_y)
-        logging.debug(msg="screen_x=%s screen_y=%s" % (screen_x, screen_y))
-
 
 class Game_Manager(object):
     """ Handles all the game objects,
@@ -41,7 +39,7 @@ class Game_Manager(object):
                                  -SCREEN_HEIGHT/2)
 
         # SPECIAL MAIN PLAYER CODE
-        self.main_player = Player(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 166, 210)
+        self.main_player = Player(SCREEN_WIDTH/2, 200, 166, 210)
 
         # OTHER STUFF
         self.actors = []  # These are the enemy creatures
@@ -72,14 +70,17 @@ class Game_Manager(object):
             #     actor.update()
 
             # HANDLE COLLISIONS
+            self.viewport.set_origin(self.main_player.x - SCREEN_WIDTH / 2,
+                                     self.main_player.y - SCREEN_HEIGHT / 2)
 
             # RENDER STUFF
 
-            # MAPS
-            self.screen.fill((0,0,0))
+            # MAPS AND BACKGROUND
+            self.viewport.render(self.background)
 
             # PLAYER
-            self.main_player.draw(self.screen, self.main_player.x, self.main_player.y)
+            # self.main_player.draw(self.screen, self.main_player.x, self.main_player.y)
+            self.viewport.render(self.main_player)
 
             pygame.display.flip()
             time.sleep(0.01)
@@ -103,6 +104,16 @@ class Game_Manager(object):
                     self.main_player.stop_move_right()
                 elif event.key == (pygame.K_LEFT):
                     self.main_player.stop_move_left()
+
+class Background_Layer(GameObject):
+    def __init__(self, image, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.image = image
+        self.x, self.y = x, y
+
+    def draw(self, surface, dest_x, dest_y):
+        # Draw always draws to screen coordinates
+        surface.blit(self.image, (dest_x,dest_y))
 
 class Player(GameObject):
     def __init__(self, x, y, width, height):
@@ -167,7 +178,6 @@ class Player(GameObject):
 
         if self.current_frame >= self.current_animation.num_frames:
             self.current_frame  = 0
-
 
 
     def draw(self, surface, dest_x, dest_y):
